@@ -25,3 +25,6 @@ testing_only:
 
 install_hooks:
 	@ scripts/install_hooks.sh
+
+run:
+	@ docker-compose up -d
