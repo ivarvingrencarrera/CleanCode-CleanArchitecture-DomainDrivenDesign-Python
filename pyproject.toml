@@ -2,17 +2,23 @@
 name = "ecommerce"
 version = "0.1.0"
 description = ""
-authors = ["Ivar Carrera <ivar.carrera@outlook.com>"]
+authors = ["Ivar Carrera <ivar.carrera@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+fastapi = "*"
+hypercorn = "*"
+psycopg2-binary = "^2.9.6"
+dj-database-url = "^2.0.0"
 
 
 [tool.poetry.group.test.dependencies]
 pytest = "*"
 parameterized = "*"
 pytest-cov = "*"
+httpx = "*"
+alt-pytest-asyncio = "*"
 
 
 [tool.poetry.group.lint.dependencies]
