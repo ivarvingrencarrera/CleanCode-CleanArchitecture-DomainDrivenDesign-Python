@@ -101,3 +101,19 @@ async def test_checkout_with_duplicated_item(client: AsyncClient) -> None:
     output = response.json()
     assert response.status_code == STATUS_CODE_UNPROCESSABLE_ENTITY
     assert output['detail'] == 'Duplicated item'
+
+async def test_checkout_with_1_product_calculating_freight(client: AsyncClient) -> None:
+    input_ = {
+        'cpf': '353.775.320-90',
+        'items': [
+            {'id_product': 1, 'quantity': 3},
+        ],
+        'origin': '22060030',
+        'destination': '88015600',
+    }
+    response = await client.post('/checkout', json=input_)
+    output = response.json()
+    assert response.status_code == STATUS_CODE_OK
+    total = 3090
+    assert output['total'] == total
+    assert output['freight'] == 90

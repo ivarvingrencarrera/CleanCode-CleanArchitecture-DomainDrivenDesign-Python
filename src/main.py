@@ -25,15 +25,22 @@ class Input(BaseModel):
     cpf: str
     items: list[Item] | None = None
     coupon: str | None = None
+    origin: str | None = None
+    destination: str | None = None
 
 
 class Output(BaseModel):
     total: float
+    freight: float
 
 class ProductData(BaseModel):
     id_product: int
     description: str
     price: float
+    width: int
+    height: int
+    length: int
+    weight: float
 
 
 class CouponData(BaseModel):
@@ -48,7 +55,7 @@ app = FastAPI()
 @app.post('/checkout')
 async def checkout(input_: Input) -> Output:
     try:
-        output = Output(total=0)
+        output = Output(total=0, freight=0)
         cpf = CPF(input_.cpf)
         if not cpf.is_valid():
             raise ValueError('Invalid cpf')
@@ -67,9 +74,13 @@ async def checkout(input_: Input) -> Output:
                                 item.id_product,
                             )
                             product_data = ProductData(
-                                id_product=row[0], description=row[1], price=row[2]
+                                id_product=row[0], description=row[1], price=row[2], width=row[3], height=row[4], length=row[5], weight=row[6]
                             )
                             output.total += product_data.price * item.quantity
+                            volume = product_data.width/100 * product_data.height/100 * product_data.length/100
+                            density = product_data.weight / volume
+                            item_freight = 1000 * volume * (density/100)
+                            output.freight += item_freight * item.quantity
                             items.append(item.id_product)
                 if input_.coupon:
                     async with connection.transaction():
@@ -79,6 +90,8 @@ async def checkout(input_: Input) -> Output:
                         coupon_data = CouponData(code=row[0], percentage=row[1], expire_date=row[2])
                         if coupon_data.expire_date > datetime.now():
                             output.total -= (output.total * coupon_data.percentage) / 100
+                if input_.origin and input_.destination:
+                    output.total += output.freight
             return output
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
