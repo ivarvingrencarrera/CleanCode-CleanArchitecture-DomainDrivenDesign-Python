@@ -9,9 +9,8 @@ readme = "README.md"
 python = "^3.11"
 fastapi = "*"
 hypercorn = "*"
-psycopg2-binary = "^2.9.6"
-dj-database-url = "^2.0.0"
 python-dotenv = "*"
+asyncpg = "*"
 
 
 [tool.poetry.group.test.dependencies]
