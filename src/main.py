@@ -1,6 +1,6 @@
 import os
 
-import psycopg2
+import asyncpg
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -48,25 +48,28 @@ app = FastAPI()
 @app.post('/checkout')
 async def checkout(input_: Input) -> Output:
     output = Output(total=0)
-    connection = psycopg2.connect(
-        dbname='root', user=db_user, password=db_password, host=db_host, port=db_port
-    )
-    cursor = connection.cursor()
-    if input_.items:
-        for item in input_.items:
-            cursor.execute(
-                'SELECT * FROM ecommerce.product WHERE id_product = %s;', (item.id_product,)
-            )
-            row = cursor.fetchone()
-            product_data = ProductData(id_product=row[0], description=row[1], price=row[2])
-            output.total += product_data.price * item.quantity
-    if input_.coupon:
-        cursor.execute('SELECT * FROM ecommerce.coupon WHERE code = %s;', (input_.coupon,))
-        row = cursor.fetchone()
-        coupon_data = CouponData(code=row[0], percentage=row[1])
-        output.total -= (output.total * coupon_data.percentage) / 100
-    cursor.close()
-    connection.close()
+    async with asyncpg.create_pool(
+        database=db_name, host=db_host, port=db_port, user=db_user, password=db_password
+    ) as pool:
+        async with pool.acquire() as connection:
+            if input_.items:
+                async with connection.transaction():
+                    for item in input_.items:
+                        row = await connection.fetchrow(
+                            'SELECT * FROM ecommerce.product WHERE id_product = $1;',
+                            item.id_product,
+                        )
+                        product_data = ProductData(
+                            id_product=row[0], description=row[1], price=row[2]
+                        )
+                        output.total += product_data.price * item.quantity
+            if input_.coupon:
+                async with connection.transaction():
+                    row = await connection.fetchrow(
+                        'SELECT * FROM ecommerce.coupon WHERE code = $1;', input_.coupon
+                    )
+                    coupon_data = CouponData(code=row[0], percentage=row[1])
+                    output.total -= (output.total * coupon_data.percentage) / 100
     cpf = CPF(input_.cpf)
     is_valid = cpf.is_valid()
     if not is_valid:
