@@ -53,13 +53,15 @@ async def checkout(input_: Input) -> Output:
         if not cpf.is_valid():
             raise ValueError('Invalid cpf')
         async with asyncpg.create_pool(
-            database=db_name, host=db_host, port=db_port, user=db_user, password=db_password
-        ) as pool:
+                    database=db_name, host=db_host, port=db_port, user=db_user, password=db_password
+                ) as pool:
             async with pool.acquire() as connection:
                 if input_.items:
+                    items = []
                     async with connection.transaction():
                         for item in input_.items:
                             if item.quantity <= 0: raise ValueError('Invalid quantity')
+                            if item.id_product in items: raise ValueError('Duplicated item')
                             row = await connection.fetchrow(
                                 'SELECT * FROM ecommerce.product WHERE id_product = $1;',
                                 item.id_product,
@@ -68,6 +70,7 @@ async def checkout(input_: Input) -> Output:
                                 id_product=row[0], description=row[1], price=row[2]
                             )
                             output.total += product_data.price * item.quantity
+                            items.append(item.id_product)
                 if input_.coupon:
                     async with connection.transaction():
                         row = await connection.fetchrow(
