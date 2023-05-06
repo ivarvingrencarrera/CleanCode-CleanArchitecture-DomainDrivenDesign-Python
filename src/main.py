@@ -83,7 +83,7 @@ async def checkout(input_: Input) -> Output:
                             volume = product_data.width/100 * product_data.height/100 * product_data.length/100
                             density = product_data.weight / volume
                             item_freight = 1000 * volume * (density/100)
-                            output.freight += item_freight * item.quantity
+                            output.freight += max(item_freight, 10) * item.quantity
                             items.append(item.id_product)
                 if input_.coupon:
                     async with connection.transaction():
