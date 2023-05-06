@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 
 import asyncpg
@@ -40,6 +41,7 @@ class ProductData(BaseModel):
 class CouponData(BaseModel):
     code: str
     percentage: float
+    expire_date: datetime
 
 
 app = FastAPI()
@@ -68,8 +70,9 @@ async def checkout(input_: Input) -> Output:
                     row = await connection.fetchrow(
                         'SELECT * FROM ecommerce.coupon WHERE code = $1;', input_.coupon
                     )
-                    coupon_data = CouponData(code=row[0], percentage=row[1])
-                    output.total -= (output.total * coupon_data.percentage) / 100
+                    coupon_data = CouponData(code=row[0], percentage=row[1], expire_date=row[2])
+                    if coupon_data.expire_date > datetime.now():
+                        output.total -= (output.total * coupon_data.percentage) / 100
     cpf = CPF(input_.cpf)
     is_valid = cpf.is_valid()
     if not is_valid:

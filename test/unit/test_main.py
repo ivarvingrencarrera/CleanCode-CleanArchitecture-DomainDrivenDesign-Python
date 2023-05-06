@@ -65,3 +65,20 @@ async def test_checkout_with_3_products_with_coupon(client: AsyncClient) -> None
     assert response.status_code == STATUS_CODE_OK
     total = 4872
     assert output['total'] == total
+
+@pytest.mark.asyncio
+async def test_checkout_with_3_products_with_invalid_coupon(client: AsyncClient) -> None:
+    input_ = {
+        'cpf': '353.775.320-90',
+        'items': [
+            {'id_product': 1, 'quantity': 1},
+            {'id_product': 2, 'quantity': 1},
+            {'id_product': 3, 'quantity': 3},
+        ],
+        'coupon': 'VALE10',
+    }
+    response = await client.post('/checkout', json=input_)
+    output = response.json()
+    assert response.status_code == STATUS_CODE_OK
+    total = 6090
+    assert output['total'] == total
