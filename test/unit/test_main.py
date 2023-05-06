@@ -76,3 +76,15 @@ async def test_checkout_with_3_products_with_invalid_coupon(client: AsyncClient)
     assert response.status_code == STATUS_CODE_OK
     total = 6090
     assert output['total'] == total
+
+async def test_checkout_with_negative_quantity(client: AsyncClient) -> None:
+    input_ = {
+        'cpf': '353.775.320-90',
+        'items': [
+            {'id_product': 1, 'quantity': -1},
+        ],
+    }
+    response = await client.post('/checkout', json=input_)
+    output = response.json()
+    assert response.status_code == STATUS_CODE_UNPROCESSABLE_ENTITY
+    assert output['detail'] == 'Invalid quantity'

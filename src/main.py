@@ -59,6 +59,7 @@ async def checkout(input_: Input) -> Output:
                 if input_.items:
                     async with connection.transaction():
                         for item in input_.items:
+                            if item.quantity <= 0: raise ValueError('Invalid quantity')
                             row = await connection.fetchrow(
                                 'SELECT * FROM ecommerce.product WHERE id_product = $1;',
                                 item.id_product,
