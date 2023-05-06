@@ -33,6 +33,7 @@ class Output(BaseModel):
     total: float
     freight: float
 
+
 class ProductData(BaseModel):
     id_product: int
     description: str
@@ -76,6 +77,8 @@ async def checkout(input_: Input) -> Output:
                             product_data = ProductData(
                                 id_product=row[0], description=row[1], price=row[2], width=row[3], height=row[4], length=row[5], weight=row[6]
                             )
+                            if product_data.height <= 0 or product_data.length <= 0 or product_data.weight <= 0 or product_data.width <= 0:
+                                raise ValueError('Invalid dimension')
                             output.total += product_data.price * item.quantity
                             volume = product_data.width/100 * product_data.height/100 * product_data.length/100
                             density = product_data.weight / volume

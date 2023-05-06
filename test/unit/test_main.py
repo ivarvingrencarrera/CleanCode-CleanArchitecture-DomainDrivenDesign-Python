@@ -117,3 +117,15 @@ async def test_checkout_with_1_product_calculating_freight(client: AsyncClient) 
     total = 3090
     assert output['total'] == total
     assert output['freight'] == 90
+
+async def test_checkout_with_invalid_dimension(client: AsyncClient) -> None:
+    input_ = {
+        'cpf': '353.775.320-90',
+        'items': [
+            {'id_product': 4, 'quantity': 1},
+        ],
+    }
+    response = await client.post('/checkout', json=input_)
+    output = response.json()
+    assert response.status_code == STATUS_CODE_UNPROCESSABLE_ENTITY
+    assert output['detail'] == 'Invalid dimension'
