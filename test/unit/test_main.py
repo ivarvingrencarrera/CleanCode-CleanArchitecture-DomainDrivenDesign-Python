@@ -22,6 +22,7 @@ async def test_checkout_with_invalid_cpf(client: AsyncClient) -> None:
     assert response.status_code == STATUS_CODE_UNPROCESSABLE_ENTITY
     assert output['detail'] == 'Invalid cpf'
 
+
 async def test_empty_checkout(client: AsyncClient) -> None:
     input_ = {'cpf': '353.775.320-90'}
     response = await client.post('/checkout', json=input_)
@@ -45,6 +46,7 @@ async def test_checkout_with_3_products(client: AsyncClient) -> None:
     total = 6090
     assert output['total'] == total
 
+
 async def test_checkout_with_3_products_with_coupon(client: AsyncClient) -> None:
     input_ = {
         'cpf': '353.775.320-90',
@@ -60,6 +62,7 @@ async def test_checkout_with_3_products_with_coupon(client: AsyncClient) -> None
     assert response.status_code == STATUS_CODE_OK
     total = 4872
     assert output['total'] == total
+
 
 async def test_checkout_with_3_products_with_invalid_coupon(client: AsyncClient) -> None:
     input_ = {
@@ -77,6 +80,7 @@ async def test_checkout_with_3_products_with_invalid_coupon(client: AsyncClient)
     total = 6090
     assert output['total'] == total
 
+
 async def test_checkout_with_negative_quantity(client: AsyncClient) -> None:
     input_ = {
         'cpf': '353.775.320-90',
@@ -88,6 +92,7 @@ async def test_checkout_with_negative_quantity(client: AsyncClient) -> None:
     output = response.json()
     assert response.status_code == STATUS_CODE_UNPROCESSABLE_ENTITY
     assert output['detail'] == 'Invalid quantity'
+
 
 async def test_checkout_with_duplicated_item(client: AsyncClient) -> None:
     input_ = {
@@ -101,6 +106,7 @@ async def test_checkout_with_duplicated_item(client: AsyncClient) -> None:
     output = response.json()
     assert response.status_code == STATUS_CODE_UNPROCESSABLE_ENTITY
     assert output['detail'] == 'Duplicated item'
+
 
 async def test_checkout_with_1_product_calculating_freight(client: AsyncClient) -> None:
     input_ = {
@@ -116,7 +122,9 @@ async def test_checkout_with_1_product_calculating_freight(client: AsyncClient) 
     assert response.status_code == STATUS_CODE_OK
     total = 3090
     assert output['total'] == total
-    assert output['freight'] == 90
+    freight = 90
+    assert output['freight'] == freight
+
 
 async def test_checkout_with_invalid_dimension(client: AsyncClient) -> None:
     input_ = {
@@ -129,6 +137,7 @@ async def test_checkout_with_invalid_dimension(client: AsyncClient) -> None:
     output = response.json()
     assert response.status_code == STATUS_CODE_UNPROCESSABLE_ENTITY
     assert output['detail'] == 'Invalid dimension'
+
 
 async def test_checkout_with_1_product_calculating_minimum_freight(client: AsyncClient) -> None:
     input_ = {
@@ -144,4 +153,5 @@ async def test_checkout_with_1_product_calculating_minimum_freight(client: Async
     assert response.status_code == STATUS_CODE_OK
     total = 40
     assert output['total'] == total
-    assert output['freight'] == 10
+    freight = 10
+    assert output['freight'] == freight
