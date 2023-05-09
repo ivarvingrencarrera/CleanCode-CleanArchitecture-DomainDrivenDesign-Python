@@ -28,3 +28,4 @@ install_hooks:
 
 run:
 	@ docker-compose up -d
+	@ hypercorn src.api_currency:app --bind 0.0.0.0:3001 --reload
