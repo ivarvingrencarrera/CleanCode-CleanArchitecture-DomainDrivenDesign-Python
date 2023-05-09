@@ -22,6 +22,7 @@ class ProductData(BaseModel):
     height: int
     length: int
     weight: float
+    currency: str
 
 
 class ProductRepositoryDatabase(ProductRepository):
@@ -41,4 +42,5 @@ class ProductRepositoryDatabase(ProductRepository):
                     height=row[4],
                     length=row[5],
                     weight=row[6],
+                    currency=row[7],
                 )

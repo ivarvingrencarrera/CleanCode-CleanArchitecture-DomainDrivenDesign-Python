@@ -18,72 +18,94 @@ async def test_empty_checkout() -> None:
 
 
 async def test_checkout_with_3_products() -> None:
-    item1 = Item(id_product=1, quantity=1)
-    item2 = Item(id_product=2, quantity=1)
-    item3 = Item(id_product=3, quantity=3)
-    input_ = Input(cpf='353.775.320-90', items=[item1, item2, item3])
+    input_ = Input(
+        cpf='353.775.320-90',
+        items=[
+            Item(id_product=1, quantity=1),
+            Item(id_product=2, quantity=1),
+            Item(id_product=3, quantity=3),
+        ],
+    )
     output = await checkout.execute(input_)
-    total = 6090
-    assert output.total == total
+    assert output.total == 6090
 
 
 async def test_checkout_with_3_products_with_coupon() -> None:
-    item1 = Item(id_product=1, quantity=1)
-    item2 = Item(id_product=2, quantity=1)
-    item3 = Item(id_product=3, quantity=3)
-    input_ = Input(cpf='353.775.320-90', items=[item1, item2, item3], coupon='VALE20')
+    input_ = Input(
+        cpf='353.775.320-90',
+        items=[
+            Item(id_product=1, quantity=1),
+            Item(id_product=2, quantity=1),
+            Item(id_product=3, quantity=3),
+        ],
+        coupon='VALE20',
+    )
     output = await checkout.execute(input_)
-    total = 4872
-    assert output.total == total
+    assert output.total == 4872
 
 
 async def test_checkout_with_3_products_with_invalid_coupon() -> None:
-    item1 = Item(id_product=1, quantity=1)
-    item2 = Item(id_product=2, quantity=1)
-    item3 = Item(id_product=3, quantity=3)
-    input_ = Input(cpf='353.775.320-90', items=[item1, item2, item3], coupon='VALE10')
+    input_ = Input(
+        cpf='353.775.320-90',
+        items=[
+            Item(id_product=1, quantity=1),
+            Item(id_product=2, quantity=1),
+            Item(id_product=3, quantity=3),
+        ],
+        coupon='VALE10',
+    )
     output = await checkout.execute(input_)
-    total = 6090
-    assert output.total == total
+    assert output.total == 6090
 
 
 async def test_checkout_with_negative_quantity() -> None:
-    item = Item(id_product=1, quantity=-1)
-    input_ = Input(cpf='353.775.320-90', items=[item])
+    input_ = Input(cpf='353.775.320-90', items=[Item(id_product=1, quantity=-1)])
     with pytest.raises(ValueError, match='Invalid quantity'):
         await checkout.execute(input_)
 
 
 async def test_checkout_with_duplicated_item() -> None:
-    item1 = Item(id_product=1, quantity=1)
-    item2 = Item(id_product=1, quantity=1)
-    input_ = Input(cpf='353.775.320-90', items=[item1, item2])
+    input_ = Input(
+        cpf='353.775.320-90', items=[Item(id_product=1, quantity=1), Item(id_product=1, quantity=1)]
+    )
     with pytest.raises(ValueError, match='Duplicated item'):
         await checkout.execute(input_)
 
 
 async def test_checkout_with_1_product_calculating_freight() -> None:
-    item = Item(id_product=1, quantity=3)
-    input_ = Input(cpf='353.775.320-90', items=[item], origin='22060030', destination='88015600')
+    input_ = Input(
+        cpf='353.775.320-90',
+        items=[Item(id_product=1, quantity=3)],
+        origin='22060030',
+        destination='88015600',
+    )
     output = await checkout.execute(input_)
-    total = 3090
-    assert output.total == total
-    freight = 90
-    assert output.freight == freight
+    assert output.total == 3090
+    assert output.freight == 90
 
 
 async def test_checkout_with_invalid_dimension() -> None:
-    item = Item(id_product=4, quantity=1)
-    input_ = Input(cpf='353.775.320-90', items=[item])
+    input_ = Input(cpf='353.775.320-90', items=[Item(id_product=4, quantity=1)])
     with pytest.raises(ValueError, match='Invalid dimension'):
         await checkout.execute(input_)
 
 
 async def test_checkout_with_1_product_calculating_minimum_freight() -> None:
-    item = Item(id_product=3, quantity=1)
-    input_ = Input(cpf='353.775.320-90', items=[item], origin='22060030', destination='88015600')
+    input_ = Input(
+        cpf='353.775.320-90',
+        items=[Item(id_product=3, quantity=1)],
+        origin='22060030',
+        destination='88015600',
+    )
     output = await checkout.execute(input_)
-    total = 40
-    assert output.total == total
-    freight = 10
-    assert output.freight == freight
+    assert output.total == 40
+    assert output.freight == 10
+
+async def test_checkout_with_dollar_product() -> None:
+    input_ = Input(
+        cpf='353.775.320-90',
+        items=[Item(id_product=5, quantity=1)],
+    )
+    output = await checkout.execute(input_)
+    assert output.total == 3000
+

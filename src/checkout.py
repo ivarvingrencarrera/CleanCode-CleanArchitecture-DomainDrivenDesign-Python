@@ -7,9 +7,10 @@ from pydantic import BaseModel
 from src.coupon_repository import CouponRepository
 from src.coupon_repository_database import CouponRepositoryDatabase
 from src.cpf import CPF
+from src.currency_gateway_http import CurrencyGatewayHttp
 from src.freight_calculator import FreightCalculator
 from src.product_repository import ProductRepository
-from src.product_repository_database import ProductRepositoryDatabase
+from src.product_repository_database import ProductData, ProductRepositoryDatabase
 
 load_dotenv()
 db_name = os.getenv('DB_NAME')
@@ -37,16 +38,6 @@ class Output(BaseModel):
     freight: float
 
 
-class ProductData(BaseModel):
-    id_product: int
-    description: str
-    price: float
-    width: int
-    height: int
-    length: int
-    weight: float
-
-
 class CouponData(BaseModel):
     code: str
     percentage: float
@@ -59,8 +50,10 @@ class Checkout:
         self.coupon_repository: CouponRepository = CouponRepositoryDatabase()
 
     async def execute(self, input_: Input):
-        output = Output(total=0, freight=0)
         cpf = CPF(input_.cpf)
+        output = Output(total=0, freight=0)
+        currency_gateway = CurrencyGatewayHttp()
+        currencies = await currency_gateway.get_currencies()
         if not cpf.is_valid():
             raise ValueError('Invalid cpf')
         if input_.items:
@@ -80,7 +73,10 @@ class Checkout:
                     or product_data.width <= 0
                 ):
                     raise ValueError('Invalid dimension')
-                output.total += product_data.price * item.quantity
+                if product_data.currency == 'USD':
+                    output.total += product_data.price * item.quantity * currencies['usd']
+                else:
+                    output.total += product_data.price * item.quantity
                 item_freight = FreightCalculator.calculate(product_data)
                 output.freight += max(item_freight, 10) * item.quantity
                 items.append(item.id_product)
