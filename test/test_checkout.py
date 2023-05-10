@@ -1,4 +1,5 @@
 import json
+import uuid
 from unittest import mock
 from unittest.mock import AsyncMock, patch
 
@@ -7,9 +8,11 @@ import pytest
 from src.checkout import Checkout, CouponData, Input, Item
 from src.coupon_repository_database import CouponRepositoryDatabase
 from src.currency_gateway_http import CurrencyGatewayHttp
+from src.get_order import GetOrder
 from src.product_repository_database import ProductData, ProductRepositoryDatabase
 
 checkout = Checkout()
+get_order = GetOrder()
 
 
 async def test_checkout_with_invalid_cpf() -> None:
@@ -25,7 +28,9 @@ async def test_empty_checkout() -> None:
 
 
 async def test_checkout_with_3_products() -> None:
+    uuid_ = uuid.uuid4().hex
     input_ = Input(
+        uuid=uuid_,
         cpf='353.775.320-90',
         items=[
             Item(id_product=1, quantity=1),
@@ -33,7 +38,8 @@ async def test_checkout_with_3_products() -> None:
             Item(id_product=3, quantity=3),
         ],
     )
-    output = await checkout.execute(input_)
+    await checkout.execute(input_)
+    output = await get_order.execute(uuid_)
     total = 6090
     assert output.total == total
 

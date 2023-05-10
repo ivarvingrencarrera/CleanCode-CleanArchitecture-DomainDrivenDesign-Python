@@ -7,9 +7,10 @@ from src.checkout import Checkout
 class Item(BaseModel):
     id_product: int
     quantity: int
-
+    price: float | None = None
 
 class Input(BaseModel):
+    uuid: str | None = None
     cpf: str
     items: list[Item] | None = None
     coupon: str | None = None

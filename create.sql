@@ -14,3 +14,7 @@ CREATE TABLE IF NOT EXISTS ecommerce.coupon (code text, percentage numeric, expi
 INSERT INTO ecommerce.coupon(code, percentage, expire_date)
 VALUES ('VALE20', 20, '2023-10-01T10:00:00'),
        ('VALE10', 10, '2022-10-01T10:00:00');
+
+CREATE TABLE IF NOT EXISTS ecommerce.order (id_order text, cpf text, total numeric, freight numeric);
+
+CREATE TABLE IF NOT EXISTS ecommerce.item (id_order text, id_product integer, price numeric, quantity integer);
