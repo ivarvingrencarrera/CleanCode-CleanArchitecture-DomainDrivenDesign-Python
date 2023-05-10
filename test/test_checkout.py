@@ -139,6 +139,7 @@ async def test_checkout_with_one_product_in_dollar_using_stub() -> None:
         total = 4000
         assert output.total == total
 
+
 async def test_create_order_with_discount_coupon_using_spy() -> None:
     with mock.patch.object(CouponRepositoryDatabase, 'get_coupon') as coupon_repository_spy:
         coupon_repository_spy.return_value = CouponData(
@@ -159,6 +160,7 @@ async def test_create_order_with_discount_coupon_using_spy() -> None:
         coupon_repository_spy.assert_called_once_with('VALE20')
         coupon_repository_spy.assert_called_once()
 
+
 @patch.object(
     CurrencyGatewayHttp, 'get_currencies', new_callable=AsyncMock, return_value={'usd': 3}
 )
@@ -170,6 +172,7 @@ async def test_checkout_with_one_product_in_dollar_using_mock(
     total = 3000
     assert output.total == total
     currency_gateway_mock.assert_called_once()
+
 
 async def test_checkout_with_one_product_in_dollar_using_fake() -> None:
     class CurrencyGatewayFake:
