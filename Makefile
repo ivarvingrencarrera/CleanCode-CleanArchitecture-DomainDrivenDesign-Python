@@ -29,3 +29,6 @@ install_hooks:
 run:
 	@ docker-compose up -d
 	@ hypercorn src.api_currency:app --bind 0.0.0.0:3001 --reload
+
+psql:
+	@ docker compose exec -it postgres bash -c "psql -U root -d root"
