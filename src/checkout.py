@@ -4,12 +4,10 @@ from datetime import datetime
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
-from src.coupon_repository import CouponRepository
 from src.coupon_repository_database import CouponRepositoryDatabase
 from src.cpf import CPF
 from src.currency_gateway_http import CurrencyGatewayHttp
 from src.freight_calculator import FreightCalculator
-from src.product_repository import ProductRepository
 from src.product_repository_database import ProductData, ProductRepositoryDatabase
 
 load_dotenv()
@@ -45,15 +43,17 @@ class CouponData(BaseModel):
 
 
 class Checkout:
-    def __init__(self) -> None:
-        self.product_repository: ProductRepository = ProductRepositoryDatabase()
-        self.coupon_repository: CouponRepository = CouponRepositoryDatabase()
+    def __init__(
+        self, currency_gateway=None, product_repository=None, coupon_repository=None
+    ) -> None:
+        self.currency_gateway = currency_gateway or CurrencyGatewayHttp()
+        self.product_repository = product_repository or ProductRepositoryDatabase()
+        self.coupon_repository = coupon_repository or CouponRepositoryDatabase()
 
-    async def execute(self, input_: Input):
+    async def execute(self, input_: Input) -> Output:
         cpf = CPF(input_.cpf)
         output = Output(total=0, freight=0)
-        currency_gateway = CurrencyGatewayHttp()
-        currencies = await currency_gateway.get_currencies()
+        currencies = await self.currency_gateway.get_currencies()
         if not cpf.is_valid():
             raise ValueError('Invalid cpf')
         if input_.items:

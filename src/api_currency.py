@@ -8,4 +8,5 @@ app = FastAPI()
 
 @app.get('/currencies')
 async def read_currencies():
-    return JSONResponse(content={'usd': 3})
+    random_currency = 3 + random.random()
+    return JSONResponse(content={'usd': random_currency})

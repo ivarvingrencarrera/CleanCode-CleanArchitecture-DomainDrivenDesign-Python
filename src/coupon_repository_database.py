@@ -22,7 +22,7 @@ class CouponData(BaseModel):
 
 
 class CouponRepositoryDatabase(CouponRepository):
-    async def get_coupon(self, coupon: int) -> CouponData:
+    async def get_coupon(self, coupon: str) -> CouponData:
         async with asyncpg.create_pool(
             database=db_name, host=db_host, port=db_port, user=db_user, password=db_password
         ) as pool:
