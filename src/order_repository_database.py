@@ -18,6 +18,7 @@ db_password = os.getenv('DB_PASSWORD')
 class OrderData(BaseModel):
     id_order: str
     cpf: str
+    code: str
     total: float
     freight: float
 
@@ -29,9 +30,10 @@ class OrderRepositoryDatabase(OrderRepository):
         ) as pool:
             async with pool.acquire() as connection:
                 await connection.execute(
-                    'INSERT INTO ecommerce.order (id_order, cpf, total, freight) VALUES ($1, $2, $3, $4);',
+                    'INSERT INTO ecommerce.order (id_order, cpf, code, total, freight) VALUES ($1, $2, $3, $4, $5);',
                     order.id_order,
                     order.cpf,
+                    order.code,
                     order.total,
                     order.freight,
                 )
@@ -55,6 +57,15 @@ class OrderRepositoryDatabase(OrderRepository):
                 return OrderData(
                     id_order=row[0],
                     cpf=row[1],
-                    total=row[2],
-                    freight=row[3],
+                    code=row[2],
+                    total=row[3],
+                    freight=row[4],
                 )
+
+    async def count(self) -> int:
+        async with asyncpg.create_pool(
+            database=db_name, host=db_host, port=db_port, user=db_user, password=db_password
+        ) as pool:
+            async with pool.acquire() as connection:
+                row = await connection.fetchrow('SELECT COUNT(*) FROM ecommerce.order;')
+                return row[0]

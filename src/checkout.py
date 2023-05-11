@@ -43,15 +43,10 @@ class Output(BaseModel):
     freight: float
 
 
-class CouponData(BaseModel):
-    code: str
-    percentage: float
-    expire_date: datetime
-
-
 class Order(BaseModel):
     id_order: str | None = None
     total: float
+    code: str
     freight: float
     cpf: str
     items: list[Item] | None = None
@@ -109,9 +104,13 @@ class Checkout:
                 output.total -= (output.total * coupon_data.percentage) / 100
         if input_.origin and input_.destination:
             output.total += output.freight
+        year = datetime.now().year
+        sequence = await self.order_repository.count()
+        code = f'{year}{str(sequence).zfill(8)}'
         order = Order(
             id_order=input_.uuid,
             total=output.total,
+            code=code,
             freight=output.freight,
             cpf=input_.cpf,
             items=input_.items,

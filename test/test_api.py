@@ -1,4 +1,3 @@
-import uuid
 from collections.abc import AsyncGenerator
 
 import pytest
@@ -81,7 +80,7 @@ async def test_checkout_with_3_products_with_invalid_coupon(client: AsyncClient)
         coupon='VALE10',
     )
     input_json = jsonable_encoder(input_)
-    response = await client.post('/checkout', json=input_json)    
+    response = await client.post('/checkout', json=input_json)
     output = response.json()
     assert response.status_code == STATUS_CODE_OK
     total = 6090
@@ -91,9 +90,7 @@ async def test_checkout_with_3_products_with_invalid_coupon(client: AsyncClient)
 async def test_checkout_with_negative_quantity(client: AsyncClient) -> None:
     input_ = Input(
         cpf='353.775.320-90',
-        items=[
-            Item(id_product=1, quantity=-1)
-        ],
+        items=[Item(id_product=1, quantity=-1)],
         coupon='VALE20',
     )
     input_json = jsonable_encoder(input_)

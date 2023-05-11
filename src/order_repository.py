@@ -9,3 +9,7 @@ class OrderRepository(ABC):
     @abstractmethod
     async def get_by_id(self, id: str) -> None:
         pass
+
+    @abstractmethod
+    async def count(self) -> None:
+        pass

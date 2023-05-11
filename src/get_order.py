@@ -15,6 +15,7 @@ db_password = os.getenv('DB_PASSWORD')
 
 
 class Output(BaseModel):
+    code: str
     total: float
     freight: float
 
@@ -24,8 +25,9 @@ class GetOrder:
         self.order_repository: OrderRepository = order_repository or OrderRepositoryDatabase()
 
     async def execute(self, id: str) -> Output:
-        output = Output(total=0, freight=0)
+        output = Output(total=0, freight=0, code='')
         order_data: OrderData = await self.order_repository.get_by_id(id)
         output.total = order_data.total
         output.freight = order_data.freight
+        output.code = order_data.code
         return output

@@ -9,6 +9,7 @@ class Item(BaseModel):
     quantity: int
     price: float | None = None
 
+
 class Input(BaseModel):
     uuid: str | None = None
     cpf: str
@@ -18,16 +19,11 @@ class Input(BaseModel):
     destination: str | None = None
 
 
-class Output(BaseModel):
-    total: float
-    freight: float
-
-
 app = FastAPI()
 
 
 @app.post('/checkout')
-async def checkout(input_: Input) -> Output:
+async def checkout(input_: Input):
     try:
         checkout = Checkout()
         return await checkout.execute(input_)

@@ -5,10 +5,11 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from src.checkout import Checkout, CouponData, Input, Item
-from src.coupon_repository_database import CouponRepositoryDatabase
+from src.checkout import Checkout, Input, Item
+from src.coupon_repository_database import CouponData, CouponRepositoryDatabase
 from src.currency_gateway_http import CurrencyGatewayHttp
 from src.get_order import GetOrder
+from src.order_repository_database import OrderRepositoryDatabase
 from src.product_repository_database import ProductData, ProductRepositoryDatabase
 
 checkout = Checkout()
@@ -203,3 +204,20 @@ async def test_checkout_with_one_product_in_dollar_using_fake() -> None:
     output = await checkout.execute(input_)
     total = 4000
     assert output.total == total
+
+@patch.object(OrderRepositoryDatabase, 'count', new_callable=AsyncMock, return_value=2)
+async def test_checkout_and_verify_serial_code(count) -> None:
+    uuid_ = uuid.uuid4().hex
+    input_ = Input(
+        uuid=uuid_,
+        cpf='353.775.320-90',
+        items=[
+            Item(id_product=1, quantity=1),
+            Item(id_product=2, quantity=1),
+            Item(id_product=3, quantity=3),
+        ],
+    )
+    await checkout.execute(input_)
+    output = await get_order.execute(uuid_)
+    code = '202300000002'
+    assert output.code == code
