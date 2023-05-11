@@ -7,7 +7,7 @@ class OrderRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_id(self, id: str) -> None:
+    async def get_by_id(self, id_order: str) -> None:
         pass
 
     @abstractmethod

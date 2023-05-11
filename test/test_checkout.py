@@ -205,6 +205,7 @@ async def test_checkout_with_one_product_in_dollar_using_fake() -> None:
     total = 4000
     assert output.total == total
 
+
 @patch.object(OrderRepositoryDatabase, 'count', new_callable=AsyncMock, return_value=2)
 async def test_checkout_and_verify_serial_code(count) -> None:
     uuid_ = uuid.uuid4().hex

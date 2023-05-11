@@ -24,9 +24,9 @@ class GetOrder:
     def __init__(self, order_repository=None) -> None:
         self.order_repository: OrderRepository = order_repository or OrderRepositoryDatabase()
 
-    async def execute(self, id: str) -> Output:
+    async def execute(self, id_order: str) -> Output:
         output = Output(total=0, freight=0, code='')
-        order_data: OrderData = await self.order_repository.get_by_id(id)
+        order_data: OrderData = await self.order_repository.get_by_id(id_order)
         output.total = order_data.total
         output.freight = order_data.freight
         output.code = order_data.code

@@ -3,6 +3,7 @@ from datetime import datetime
 from src.coupon_repository import CouponRepository
 from src.coupon_repository_database import CouponRepositoryDatabase
 
+
 class ValidateCoupon:
     def __init__(self, coupon_repository=None) -> None:
         self.coupon_repository: CouponRepository = coupon_repository or CouponRepositoryDatabase()

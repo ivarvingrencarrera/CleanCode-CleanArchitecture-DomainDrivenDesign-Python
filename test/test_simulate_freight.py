@@ -1,6 +1,4 @@
-from src.simulate_freight import Input, Item
-from src.simulate_freight import SimulateFreight
-
+from src.simulate_freight import Input, Item, SimulateFreight
 
 simulate_freight = SimulateFreight()
 
@@ -13,7 +11,7 @@ async def test_freight_with_3_products() -> None:
             Item(id_product=3, quantity=3),
         ],
         origin='22060030',
-        destination='88015600'
+        destination='88015600',
     )
     output = await simulate_freight.execute(input_)
     freight = 280

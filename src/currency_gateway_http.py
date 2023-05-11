@@ -10,6 +10,6 @@ app = FastAPI()
 
 class CurrencyGatewayHttp(CurrencyGateway):
     async def get_currencies(self) -> json:
-        response = requests.get('http://localhost:3001/currencies')
+        response = requests.get('http://localhost:3001/currencies', timeout=10)
         response.raise_for_status()
         return response.json()
