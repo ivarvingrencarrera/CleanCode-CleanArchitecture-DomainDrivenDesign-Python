@@ -1,7 +1,6 @@
 import re
 
 
-
 class CPF:
     CPF_LENGTH = 11
 
