@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime
 
-
 from src.domain.entity.coupon import Coupon
 from src.domain.entity.cpf import CPF
 from src.domain.entity.currency_table import CurrencyTable
