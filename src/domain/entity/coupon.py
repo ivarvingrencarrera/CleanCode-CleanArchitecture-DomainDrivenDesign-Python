@@ -1,6 +1,7 @@
 from datetime import datetime
 
 
+
 class Coupon:
     def __init__(self, code: str, percentage: float, expire_date: datetime) -> None:
         self.code = code

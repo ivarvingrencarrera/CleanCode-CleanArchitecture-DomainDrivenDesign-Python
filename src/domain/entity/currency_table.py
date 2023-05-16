@@ -1,3 +1,4 @@
+
 class CurrencyTable:
     def __init__(self) -> None:
         self.value = {'BRL': 1.0}
