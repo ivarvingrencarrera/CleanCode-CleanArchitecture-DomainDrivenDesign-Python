@@ -38,14 +38,14 @@ build-backend = "poetry.core.masonry.api"
 filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.blue]
-line-length = 100
+line-length = 120
 
 [tool.isort]
 profile = "black"
-line_length = 100
+line_length = 120
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 select = [
     "A",
     "ARG",
@@ -58,7 +58,7 @@ select = [
     "N",
     "PLC",
     "PLE",
-    "PLR",
+    
     "PLW",
     "RET",
     "S",
