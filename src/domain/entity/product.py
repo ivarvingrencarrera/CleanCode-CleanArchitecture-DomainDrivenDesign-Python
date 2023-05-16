@@ -24,6 +24,6 @@ class Product:
     def _validate_dimensions(*dimensions: float) -> None:
         if any(dim <= 0 for dim in dimensions):
             raise ValueError('Invalid dimension')
-        
+
     def get_volume(self):
         return self.width / 100 * self.height / 100 * self.length / 100
