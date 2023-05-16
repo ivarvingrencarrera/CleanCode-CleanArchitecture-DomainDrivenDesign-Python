@@ -1,23 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 
-from src.checkout import Checkout
-
-
-class Item(BaseModel):
-    id_product: int
-    quantity: int
-    price: float | None = None
-
-
-class Input(BaseModel):
-    uuid: str | None = None
-    cpf: str
-    items: list[Item] | None = None
-    coupon: str | None = None
-    origin: str | None = None
-    destination: str | None = None
-
+from src.application.usecase.checkout import Checkout, Input
 
 app = FastAPI()
 

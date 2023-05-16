@@ -6,4 +6,6 @@ app = FastAPI()
 
 @app.get('/currencies')
 async def read_currencies():
-    return JSONResponse(content={'usd': 3})
+    return JSONResponse(
+        content={'currency': 'USD', 'symbol': '$', 'name': 'United States dollar', 'rates': 3},
+    )

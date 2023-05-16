@@ -4,7 +4,8 @@ import pytest
 from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient
 
-from src.api import Input, Item, app
+from src.api import app
+from src.application.usecase.checkout import Input, Item
 
 STATUS_CODE_OK = 200
 STATUS_CODE_UNPROCESSABLE_ENTITY = 422
@@ -37,11 +38,7 @@ async def test_empty_checkout(client: AsyncClient) -> None:
 async def test_checkout_with_3_products(client: AsyncClient) -> None:
     input_ = Input(
         cpf='353.775.320-90',
-        items=[
-            Item(id_product=1, quantity=1),
-            Item(id_product=2, quantity=1),
-            Item(id_product=3, quantity=3),
-        ],
+        items=[Item(id_product=1, quantity=1), Item(id_product=2, quantity=1), Item(id_product=3, quantity=3)],
     )
     input_json = jsonable_encoder(input_)
     response = await client.post('/checkout', json=input_json)
@@ -54,11 +51,7 @@ async def test_checkout_with_3_products(client: AsyncClient) -> None:
 async def test_checkout_with_3_products_with_coupon(client: AsyncClient) -> None:
     input_ = Input(
         cpf='353.775.320-90',
-        items=[
-            Item(id_product=1, quantity=1),
-            Item(id_product=2, quantity=1),
-            Item(id_product=3, quantity=3),
-        ],
+        items=[Item(id_product=1, quantity=1), Item(id_product=2, quantity=1), Item(id_product=3, quantity=3)],
         coupon='VALE20',
     )
     input_json = jsonable_encoder(input_)
@@ -72,11 +65,7 @@ async def test_checkout_with_3_products_with_coupon(client: AsyncClient) -> None
 async def test_checkout_with_3_products_with_invalid_coupon(client: AsyncClient) -> None:
     input_ = Input(
         cpf='353.775.320-90',
-        items=[
-            Item(id_product=1, quantity=1),
-            Item(id_product=2, quantity=1),
-            Item(id_product=3, quantity=3),
-        ],
+        items=[Item(id_product=1, quantity=1), Item(id_product=2, quantity=1), Item(id_product=3, quantity=3)],
         coupon='VALE10',
     )
     input_json = jsonable_encoder(input_)
@@ -103,10 +92,7 @@ async def test_checkout_with_negative_quantity(client: AsyncClient) -> None:
 async def test_checkout_with_duplicated_item(client: AsyncClient) -> None:
     input_ = Input(
         cpf='353.775.320-90',
-        items=[
-            Item(id_product=1, quantity=1),
-            Item(id_product=1, quantity=1),
-        ],
+        items=[Item(id_product=1, quantity=1), Item(id_product=1, quantity=1)],
     )
     input_json = jsonable_encoder(input_)
     response = await client.post('/checkout', json=input_json)
@@ -118,9 +104,7 @@ async def test_checkout_with_duplicated_item(client: AsyncClient) -> None:
 async def test_checkout_with_1_product_calculating_freight(client: AsyncClient) -> None:
     input_ = Input(
         cpf='353.775.320-90',
-        items=[
-            Item(id_product=1, quantity=3),
-        ],
+        items=[Item(id_product=1, quantity=3)],
         origin='22060030',
         destination='88015600',
     )

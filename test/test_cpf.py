@@ -2,7 +2,7 @@ import unittest
 
 from parameterized import parameterized
 
-from src.cpf import CPF
+from src.domain.entity.cpf import CPF
 
 
 class CPFTest(unittest.TestCase):
@@ -16,8 +16,9 @@ class CPFTest(unittest.TestCase):
         ]
     )
     def test_must_invalid_cpf(self, _input: str) -> None:
-        cpf = CPF(_input)
-        self.assertFalse(cpf.is_valid())
+        with self.assertRaises(ValueError) as context:
+            CPF(_input)
+        self.assertEqual(str(context.exception), 'Invalid cpf')
 
     @parameterized.expand(
         [
@@ -31,4 +32,4 @@ class CPFTest(unittest.TestCase):
     )
     def test_must_valid_cpf(self, _input: str) -> None:
         cpf = CPF(_input)
-        self.assertTrue(cpf.is_valid())
+        self.assertTrue(cpf.value)

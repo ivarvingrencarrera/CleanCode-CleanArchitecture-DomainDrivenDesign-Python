@@ -9,5 +9,5 @@ class ValidateCoupon:
         self.coupon_repository: CouponRepository = coupon_repository or CouponRepositoryDatabase()
 
     async def execute(self, code: str) -> bool:
-        coupon_data = await self.coupon_repository.get_coupon(code)
-        return coupon_data.expire_date > datetime.now()
+        coupon = await self.coupon_repository.get_coupon(code)
+        return not coupon.is_expired(datetime.now())

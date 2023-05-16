@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 
 from src.coupon_repository import CouponRepository
+from src.domain.entity.coupon import Coupon
 
 load_dotenv()
 db_name = os.getenv('DB_NAME')
@@ -22,12 +23,11 @@ class CouponData(BaseModel):
 
 
 class CouponRepositoryDatabase(CouponRepository):
-    async def get_coupon(self, coupon: str) -> CouponData:
+    async def get_coupon(self, coupon: str) -> Coupon:
         async with asyncpg.create_pool(
             database=db_name, host=db_host, port=db_port, user=db_user, password=db_password
         ) as pool:
             async with pool.acquire() as connection:
-                row = await connection.fetchrow(
-                    'SELECT * FROM ecommerce.coupon WHERE code = $1;', coupon
-                )
-                return CouponData(code=row[0], percentage=row[1], expire_date=row[2])
+                row = await connection.fetchrow('SELECT * FROM ecommerce.coupon WHERE code = $1;', coupon)
+                coupon_data = CouponData(**row)
+                return Coupon(coupon_data.code, coupon_data.percentage, coupon_data.expire_date)

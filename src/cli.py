@@ -1,16 +1,10 @@
+from checkout import Checkout, Item
 from pydantic import BaseModel
-
-from checkout import Checkout
-
-
-class Item(BaseModel):
-    id_product: int
-    quantity: int
 
 
 class Input(BaseModel):
     cpf: str
-    items: list[Item]
+    items: list
 
 
 input_data = Input(cpf='', items=[])

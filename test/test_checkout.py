@@ -1,16 +1,19 @@
 import json
 import uuid
+from datetime import datetime
 from unittest import mock
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from src.checkout import Checkout, Input, Item
-from src.coupon_repository_database import CouponData, CouponRepositoryDatabase
-from src.currency_gateway_http import CurrencyGatewayHttp
-from src.get_order import GetOrder
+from src.application.usecase.checkout import Checkout, Input, Item
+from src.application.usecase.get_order import GetOrder
+from src.coupon_repository_database import CouponRepositoryDatabase
+from src.currency_gateway_http import CurrencyData, CurrencyGatewayHttp
+from src.domain.entity.coupon import Coupon
+from src.domain.entity.product import Product
 from src.order_repository_database import OrderRepositoryDatabase
-from src.product_repository_database import ProductData, ProductRepositoryDatabase
+from src.product_repository_database import ProductRepositoryDatabase
 
 checkout = Checkout()
 get_order = GetOrder()
@@ -33,11 +36,7 @@ async def test_checkout_with_3_products() -> None:
     input_ = Input(
         uuid=uuid_,
         cpf='353.775.320-90',
-        items=[
-            Item(id_product=1, quantity=1),
-            Item(id_product=2, quantity=1),
-            Item(id_product=3, quantity=3),
-        ],
+        items=[Item(id_product=1, quantity=1), Item(id_product=2, quantity=1), Item(id_product=3, quantity=3)],
     )
     await checkout.execute(input_)
     output = await get_order.execute(uuid_)
@@ -48,11 +47,7 @@ async def test_checkout_with_3_products() -> None:
 async def test_checkout_with_3_products_with_coupon() -> None:
     input_ = Input(
         cpf='353.775.320-90',
-        items=[
-            Item(id_product=1, quantity=1),
-            Item(id_product=2, quantity=1),
-            Item(id_product=3, quantity=3),
-        ],
+        items=[Item(id_product=1, quantity=1), Item(id_product=2, quantity=1), Item(id_product=3, quantity=3)],
         coupon='VALE20',
     )
     output = await checkout.execute(input_)
@@ -63,11 +58,7 @@ async def test_checkout_with_3_products_with_coupon() -> None:
 async def test_checkout_with_3_products_with_invalid_coupon() -> None:
     input_ = Input(
         cpf='353.775.320-90',
-        items=[
-            Item(id_product=1, quantity=1),
-            Item(id_product=2, quantity=1),
-            Item(id_product=3, quantity=3),
-        ],
+        items=[Item(id_product=1, quantity=1), Item(id_product=2, quantity=1), Item(id_product=3, quantity=3)],
         coupon='VALE10',
     )
     output = await checkout.execute(input_)
@@ -82,9 +73,7 @@ async def test_checkout_with_negative_quantity() -> None:
 
 
 async def test_checkout_with_duplicated_item() -> None:
-    input_ = Input(
-        cpf='353.775.320-90', items=[Item(id_product=1, quantity=1), Item(id_product=1, quantity=1)]
-    )
+    input_ = Input(cpf='353.775.320-90', items=[Item(id_product=1, quantity=1), Item(id_product=1, quantity=1)])
     with pytest.raises(ValueError, match='Duplicated item'):
         await checkout.execute(input_)
 
@@ -125,21 +114,15 @@ async def test_checkout_with_1_product_calculating_minimum_freight() -> None:
 
 async def test_checkout_with_one_product_in_dollar_using_stub() -> None:
     with patch.object(
-        CurrencyGatewayHttp, 'get_currencies', new_callable=AsyncMock, return_value={'usd': 4}
+        CurrencyGatewayHttp,
+        'get_currencies',
+        new_callable=AsyncMock,
+        return_value=CurrencyData(currency='USD', symbol='$', name='United States dollar', rates=4),
     ), patch.object(
         ProductRepositoryDatabase,
         'get_product',
         new_callable=AsyncMock,
-        return_value=ProductData(
-            id_product=6,
-            description='A',
-            price=1000,
-            width=100,
-            height=30,
-            length=10,
-            weight=3,
-            currency='USD',
-        ),
+        return_value=Product(6, 'A', 1000, 100, 30, 10, 3, 'USD'),
     ):
         input_ = Input(cpf='353.775.320-90', items=[Item(id_product=5, quantity=1)])
         output = await checkout.execute(input_)
@@ -148,17 +131,12 @@ async def test_checkout_with_one_product_in_dollar_using_stub() -> None:
 
 
 async def test_create_order_with_discount_coupon_using_spy() -> None:
+    expire_date: datetime = datetime.strptime('2023-10-01 10:00:00', '%Y-%m-%d %H:%M:%S')
     with mock.patch.object(CouponRepositoryDatabase, 'get_coupon') as coupon_repository_spy:
-        coupon_repository_spy.return_value = CouponData(
-            code='VALE20', percentage=20, expire_date='2023-10-01T10:00:00'
-        )
+        coupon_repository_spy.return_value = Coupon(code='VALE20', percentage=20, expire_date=expire_date)
         input_data = Input(
             cpf='407.302.170-27',
-            items=[
-                Item(id_product=1, quantity=1),
-                Item(id_product=2, quantity=1),
-                Item(id_product=3, quantity=3),
-            ],
+            items=[Item(id_product=1, quantity=1), Item(id_product=2, quantity=1), Item(id_product=3, quantity=3)],
             coupon='VALE20',
         )
         output = await checkout.execute(input_data)
@@ -169,7 +147,10 @@ async def test_create_order_with_discount_coupon_using_spy() -> None:
 
 
 @patch.object(
-    CurrencyGatewayHttp, 'get_currencies', new_callable=AsyncMock, return_value={'usd': 3}
+    CurrencyGatewayHttp,
+    'get_currencies',
+    new_callable=AsyncMock,
+    return_value=CurrencyData(currency='USD', symbol='$', name='United States dollar', rates=3),
 )
 async def test_checkout_with_one_product_in_dollar_using_mock(
     currency_gateway_mock: CurrencyGatewayHttp,
@@ -184,25 +165,16 @@ async def test_checkout_with_one_product_in_dollar_using_mock(
 async def test_checkout_with_one_product_in_dollar_using_fake() -> None:
     class CurrencyGatewayFake:
         async def get_currencies(self) -> json:
-            return {'usd': 4}
+            return CurrencyData(currency='USD', symbol='$', name='United States dollar', rates=5)
 
     class ProductRepositoryFake:
-        async def get_product(self, id_product: int) -> ProductData:
-            return ProductData(
-                id_product=6,
-                description='A',
-                price=1000,
-                width=100,
-                height=30,
-                length=10,
-                weight=3,
-                currency='USD',
-            )
+        async def get_product(self, id_product: int) -> Product:
+            return Product(6, 'A', 1000, 100, 30, 10, 3, 'USD')
 
     checkout = Checkout(CurrencyGatewayFake(), ProductRepositoryFake())
     input_ = Input(cpf='353.775.320-90', items=[Item(id_product=6, quantity=1)])
     output = await checkout.execute(input_)
-    total = 4000
+    total = 5000
     assert output.total == total
 
 
@@ -212,13 +184,9 @@ async def test_checkout_and_verify_serial_code(count) -> None:
     input_ = Input(
         uuid=uuid_,
         cpf='353.775.320-90',
-        items=[
-            Item(id_product=1, quantity=1),
-            Item(id_product=2, quantity=1),
-            Item(id_product=3, quantity=3),
-        ],
+        items=[Item(id_product=1, quantity=1), Item(id_product=2, quantity=1), Item(id_product=3, quantity=3)],
     )
     await checkout.execute(input_)
     output = await get_order.execute(uuid_)
-    code = '202300000002'
+    code = '202300000001'
     assert output.code == code

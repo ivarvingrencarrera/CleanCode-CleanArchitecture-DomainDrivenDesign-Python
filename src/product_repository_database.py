@@ -4,6 +4,7 @@ import asyncpg
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
+from src.domain.entity.product import Product
 from src.product_repository import ProductRepository
 
 load_dotenv()
@@ -26,15 +27,13 @@ class ProductData(BaseModel):
 
 
 class ProductRepositoryDatabase(ProductRepository):
-    async def get_product(self, id_product: int) -> ProductData:
+    async def get_product(self, id_product: int) -> Product:
         async with asyncpg.create_pool(
             database=db_name, host=db_host, port=db_port, user=db_user, password=db_password
         ) as pool:
             async with pool.acquire() as connection:
-                row = await connection.fetchrow(
-                    'SELECT * FROM ecommerce.product WHERE id_product = $1;', id_product
-                )
-                return ProductData(
+                row = await connection.fetchrow('SELECT * FROM ecommerce.product WHERE id_product = $1;', id_product)
+                product_data = ProductData(
                     id_product=row[0],
                     description=row[1],
                     price=row[2],
@@ -43,4 +42,14 @@ class ProductRepositoryDatabase(ProductRepository):
                     length=row[5],
                     weight=row[6],
                     currency=row[7],
+                )
+                return Product(
+                    product_data.id_product,
+                    product_data.description,
+                    product_data.price,
+                    product_data.width,
+                    product_data.height,
+                    product_data.length,
+                    product_data.weight,
+                    product_data.currency,
                 )

@@ -1,4 +1,5 @@
-from src.simulate_freight import Input, Item, SimulateFreight
+from src.application.usecase.simulate_freight import Input, SimulateFreight
+from src.domain.entity.item import Item
 
 simulate_freight = SimulateFreight()
 
