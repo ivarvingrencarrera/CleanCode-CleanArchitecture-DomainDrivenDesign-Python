@@ -2,14 +2,14 @@ SHELL := /bin/bash -O globstar
 
 linting:
 	@echo
-	isort . 
+	isort .
 	@echo
-	#ruff .
-	#@echo
-	blue --check --diff --color . 
-	#@echo
-	#mypy . 
+	ruff .
 	@echo
+	blue --check --diff --color .
+	@echo
+	#mypy .
+	#@echo
 	pip-audit
 
 
