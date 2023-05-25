@@ -28,7 +28,6 @@ install_hooks:
 
 run:
 	@ docker-compose up -d
-	@ uvicorn src.api_currency:app --host 0.0.0.0 --port 3003 --reload &
 	@ python src/main_api.py
 	
 
