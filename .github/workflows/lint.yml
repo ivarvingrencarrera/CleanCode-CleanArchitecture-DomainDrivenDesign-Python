@@ -1,0 +1,70 @@
+# name: Lint
+
+# on: [push]
+
+# jobs:
+#   checkout:
+#     name: Checkout
+#     runs-on: ubuntu-latest
+#     steps:
+#       - 
+#         name: Checkout
+#         uses: actions/checkout@v3
+#       - 
+#         name: Set up python
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: '3.11'
+#       - 
+#         name: Install Poetry
+#         uses: snok/install-poetry@v1
+#         with:
+#             virtualenvs-in-project: true
+#       - 
+#         name: Load cached venv
+#         id: cached-poetry-dependencies
+#         uses: actions/cache@v3
+#         with:
+#             path: backend/checkout/venv
+#             key: venv-${{ hashFiles('backend/checkout/poetry.lock') }}
+#       - 
+#         name: Copy dependencies
+#         run: |
+#           cp -r backend/checkout/pyproject.toml .
+#           cp -r backend/checkout/poetry.lock .
+#       - 
+#         name: Install dependencies
+#         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+#         run: poetry install --no-interaction --no-ansi -vvv
+#       - 
+#         name: Run lint
+#         run: cd backend/checkout && poetry run make linting
+    # runs-on: ubuntu-latest
+    # steps:
+    #   - 
+    #     name: Checkout
+    #     uses: actions/checkout@v3
+    #   - 
+    #     name: Set up python
+    #     uses: actions/setup-python@v4
+    #     with:
+    #       python-version: '3.11'
+    #   - 
+    #     name: Install Poetry
+    #     uses: snok/install-poetry@v1
+    #     with:
+    #         virtualenvs-in-project: true
+    #   - 
+    #     name: Load cached venv
+    #     id: cached-poetry-dependencies
+    #     uses: actions/cache@v3
+    #     with:
+    #         path: .venv
+    #         key: venv-${{ hashFiles('checkout/poetry.lock') }}
+    #   - 
+    #     name: Install dependencies
+    #     if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+    #     run: poetry install --with lint --no-interaction --no-ansi -vvv
+    #   -
+    #     name: Run lint
+    #     run: poetry run make linting
