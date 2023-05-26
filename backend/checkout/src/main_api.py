@@ -8,7 +8,7 @@ from checkout.src.application.usecase.checkout import Checkout
 from checkout.src.application.usecase.get_products import GetProducts
 from checkout.src.infra.database.asyncpg_adapter import AsyncPGAdapter
 from checkout.src.infra.gateway.currency_gateway_http import CurrencyGatewayHttp
-from checkout.src.infra.http.axios_adapter import RequestAdapter
+from checkout.src.infra.http.request_adapter import RequestAdapter
 from checkout.src.infra.http.fast_api_adapter import FastApiAdapter
 from checkout.src.infra.http.http_controller import HttpController
 from checkout.src.infra.repository.coupon_repository_database import CouponRepositoryDatabase

@@ -9,3 +9,4 @@ async def read_currencies():
     return JSONResponse(
         content={'currency': 'USD', 'symbol': '$', 'name': 'United States dollar', 'rates': 3},
     )
+ 
