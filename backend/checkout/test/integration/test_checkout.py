@@ -12,7 +12,7 @@ from checkout.src.domain.entity.coupon import Coupon
 from checkout.src.domain.entity.product import Product
 from checkout.src.infra.database.asyncpg_adapter import AsyncPGAdapter
 from checkout.src.infra.gateway.currency_gateway_http import CurrencyGatewayHttp
-from checkout.src.infra.http.axios_adapter import RequestAdapter
+from checkout.src.infra.http.request_adapter import RequestAdapter
 from checkout.src.infra.repository.coupon_repository_database import CouponRepositoryDatabase
 from checkout.src.infra.repository.order_repository_database import OrderRepositoryDatabase
 from checkout.src.infra.repository.product_repository_database import ProductRepositoryDatabase
