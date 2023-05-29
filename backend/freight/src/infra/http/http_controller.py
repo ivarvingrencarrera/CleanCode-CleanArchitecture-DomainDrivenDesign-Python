@@ -1,0 +1,10 @@
+from freight.src.application.usecase.calculate_freight import CalculateFreight
+from freight.src.infra.http.http_server import HttpServer
+
+
+class HttpController:
+    def __init__(self, http_server: HttpServer, calculate_freight: CalculateFreight) -> None:
+        self.http_server = http_server
+        self.calculate_freight = calculate_freight
+
+        self.http_server.on('post', '/calculate_freight', lambda _, body: self.calculate_freight.execute(body))
