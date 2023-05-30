@@ -13,7 +13,7 @@ def main() -> None:
     calculate_freight = CalculateFreight()
     http_server = FastApiAdapter()
     HttpController(http_server, calculate_freight)
-    http_server.listen(3002)
+    http_server.listen(3007)
 
 
 if __name__ == '__main__':

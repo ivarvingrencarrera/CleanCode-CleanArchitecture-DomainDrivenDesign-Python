@@ -23,7 +23,8 @@ class CalculateFreight:
     def __init__(self) -> None:
         pass
 
-    async def execute(self, input_: Input) -> dict:
+    async def execute(self, input_data: dict) -> dict:
+        input_ = Input(**input_data)
         output = Output(freight=0)
         if input_.items:
             for item in input_.items:

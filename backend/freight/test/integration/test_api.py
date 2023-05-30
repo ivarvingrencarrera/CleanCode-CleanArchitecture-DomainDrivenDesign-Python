@@ -12,7 +12,7 @@ STATUS_CODE_UNPROCESSABLE_ENTITY = 422
 
 @pytest.fixture
 async def client() -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(base_url='http://localhost:3002') as client:
+    async with AsyncClient(base_url='http://localhost:3007') as client:
         yield client
 
 
