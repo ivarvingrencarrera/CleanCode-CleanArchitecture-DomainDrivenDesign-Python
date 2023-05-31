@@ -7,4 +7,7 @@ class HttpController:
         self.http_server = http_server
         self.calculate_freight = calculate_freight
 
-        self.http_server.on('post', '/calculate_freight', lambda _, body: self.calculate_freight.execute(body))
+        self.http_server.on('post', '/calculate_freight', self.calculate_freight_handler)
+
+    async def calculate_freight_handler(self, _: dict, body: dict) -> dict:
+        return await self.calculate_freight.execute(body)

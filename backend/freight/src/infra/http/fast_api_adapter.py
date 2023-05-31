@@ -2,7 +2,9 @@ from collections.abc import Callable
 from typing import Any
 
 import uvicorn
+import uvloop
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 
 from freight.src.infra.http.http_server import HttpServer
@@ -11,6 +13,7 @@ from freight.src.infra.http.http_server import HttpServer
 class FastApiAdapter(HttpServer):
     def __init__(self) -> None:
         self.app = FastAPI(default_response_class=ORJSONResponse)
+        self.app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'], allow_headers=['*'])
 
     def on(self, method: str, url: str, callback: Callable) -> None:
         async def route_handler(request: Request) -> Any:
@@ -23,4 +26,5 @@ class FastApiAdapter(HttpServer):
         self.app.add_api_route(url, route_handler, methods=[method.upper()])
 
     def listen(self, port: int) -> None:
-        uvicorn.run(self.app, host='127.0.0.1', port=port)
+        uvloop.install()
+        uvicorn.run(self.app, host='127.0.0.1', port=port, loop='uvloop')

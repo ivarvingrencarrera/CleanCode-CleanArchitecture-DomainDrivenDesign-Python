@@ -1,5 +1,6 @@
-from freight.src.application.usecase.calculate_freight import CalculateFreight, Input, Item
 from fastapi.encoders import jsonable_encoder
+
+from freight.src.application.usecase.calculate_freight import CalculateFreight, Input, Item
 
 calculate_freight = CalculateFreight()
 
