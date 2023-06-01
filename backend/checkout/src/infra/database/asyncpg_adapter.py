@@ -2,9 +2,8 @@ import os
 from collections import namedtuple
 
 import asyncpg
+from freight.src.infra.database.connection import Connection
 from dotenv import load_dotenv
-
-from checkout.src.infra.database.connection import Connection
 
 load_dotenv()
 db_name = os.getenv('DB_NAME')
@@ -16,7 +15,7 @@ db_password = os.getenv('DB_PASSWORD')
 
 class AsyncPGAdapter(Connection):
     def __init__(self) -> None:
-        self.connection = None
+        self.connection: asyncpg = None
 
     async def connect(self) -> None:
         self.connection = await asyncpg.connect(
@@ -26,29 +25,19 @@ class AsyncPGAdapter(Connection):
     async def disconnect(self) -> None:
         await self.connection.close()
 
-    async def insert(self, query, *params) -> None:
+    async def insert(self, query: str, *params: str) -> None:
         await self.connect()
         try:
             await self.connection.execute(query, *params)
         finally:
             await self.disconnect()
 
-    async def select_all(self, query: str, *params) -> list:
+    async def select(self, query: str, *params: str) -> list:
         await self.connect()
         try:
             result_rows = await self.connection.fetch(query, *params)
             column_names = result_rows[0].keys()
-            NamedTuple = namedtuple('NamedTuple', column_names)
-            return [NamedTuple(*row.values()) for row in result_rows]
-        finally:
-            await self.disconnect()
-
-    async def select_one(self, query: str, *params) -> list:
-        await self.connect()
-        try:
-            result_row = await self.connection.fetchrow(query, *params)
-            column_names = result_row.keys()
-            NamedTuple = namedtuple('NamedTuple', column_names)
-            return NamedTuple(*result_row.values())
+            named_tuple = namedtuple('NamedTuple', column_names)
+            return [named_tuple(*row.values()) for row in result_rows]
         finally:
             await self.disconnect()

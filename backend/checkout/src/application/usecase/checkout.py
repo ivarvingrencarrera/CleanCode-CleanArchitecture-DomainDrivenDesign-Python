@@ -1,15 +1,20 @@
 from datetime import datetime
 
-from pydantic import BaseModel
-
+from checkout.src.application.gateway.catalog_gateway import CatalogGateway
 from checkout.src.application.gateway.currency_gateway import CurrencyGateway
+from checkout.src.application.gateway.freight_gateway import FreightGateway
+from checkout.src.application.gateway.freight_gateway import Input as FreightInput
+from checkout.src.application.gateway.freight_gateway import Item as FreightItem
 from checkout.src.application.repository.coupon_repository import CouponRepository
 from checkout.src.application.repository.order_repository import OrderRepository
 from checkout.src.application.repository.product_repository import ProductRepository
 from checkout.src.domain.entity.currency_table import CurrencyTable
-from checkout.src.domain.entity.freight_calculator import FreightCalculator
 from checkout.src.domain.entity.order import Order
 from checkout.src.domain.entity.product import Product
+from checkout.src.infra.gateway.catalog_gateway_http import CatalogGatewayHttp
+from checkout.src.infra.gateway.freight_gateway_http import FreightGatewayHttp
+from checkout.src.infra.http.requests_adapter import RequestsAdapter
+from pydantic import BaseModel
 
 
 class Item(BaseModel):
@@ -35,11 +40,15 @@ class Checkout:
         product_repository: ProductRepository,
         coupon_repository: CouponRepository,
         order_repository: OrderRepository,
+        freight_gateway: FreightGateway = FreightGatewayHttp(RequestsAdapter()),
+        catalog_gateway: CatalogGateway = CatalogGatewayHttp(RequestsAdapter()),
     ):
         self.currency_gateway = currency_gateway
         self.product_repository = product_repository
         self.coupon_repository = coupon_repository
         self.order_repository = order_repository
+        self.freight_gateway = freight_gateway
+        self.catalog_gateway = catalog_gateway
 
     async def execute(self, input_data: dict) -> dict:
         input_ = Input(**input_data)
@@ -48,13 +57,23 @@ class Checkout:
         currency_table.add_currency(currencies['currency'], currencies['rates'])   # add USD currency
         sequence = await self.order_repository.count()
         order = Order(input_.uuid, input_.cpf, currency_table, sequence, datetime.now())
-        freight = 0
+        freight_input = FreightInput(items=[])
         if input_.items:
             for item in input_.items:
-                product: Product = await self.product_repository.get_product(item.id_product)
+                #product: Product = await self.product_repository.get_product(item.id_product)
+                product: Product = await self.catalog_gateway.get_product(item.id_product)
                 order.add_item(product, item.quantity)
-                item_freight = FreightCalculator.calculate(product, item.quantity)
-                freight += item_freight
+                freight_input.items.append(
+                    FreightItem(
+                        width=product.width,
+                        height=product.height,
+                        length=product.length,
+                        weight=product.weight,
+                        quantity=item.quantity,
+                    )
+                )
+        freight_output = await self.freight_gateway.calculate_freight(freight_input)
+        freight = freight_output.freight
         if input_.origin and input_.destination:
             order.freight = freight
         if input_.coupon:

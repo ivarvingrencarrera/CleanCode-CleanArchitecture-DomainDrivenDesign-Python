@@ -3,22 +3,28 @@ import uuid
 from datetime import datetime
 from unittest import mock
 from unittest.mock import AsyncMock, patch
+from checkout.src.infra.gateway.catalog_gateway_http import CatalogGatewayHttp
 
 import pytest
-
 from checkout.src.application.usecase.checkout import Checkout
 from checkout.src.application.usecase.get_order import GetOrder
 from checkout.src.domain.entity.coupon import Coupon
 from checkout.src.domain.entity.product import Product
 from checkout.src.infra.database.asyncpg_adapter import AsyncPGAdapter
 from checkout.src.infra.gateway.currency_gateway_http import CurrencyGatewayHttp
-from checkout.src.infra.http.request_adapter import RequestAdapter
-from checkout.src.infra.repository.coupon_repository_database import CouponRepositoryDatabase
-from checkout.src.infra.repository.order_repository_database import OrderRepositoryDatabase
-from checkout.src.infra.repository.product_repository_database import ProductRepositoryDatabase
+from checkout.src.infra.http.requests_adapter import RequestsAdapter
+from checkout.src.infra.repository.coupon_repository_database import (
+    CouponRepositoryDatabase,
+)
+from checkout.src.infra.repository.order_repository_database import (
+    OrderRepositoryDatabase,
+)
+from checkout.src.infra.repository.product_repository_database import (
+    ProductRepositoryDatabase,
+)
 
 connection = AsyncPGAdapter()
-http_client = RequestAdapter()
+http_client = RequestsAdapter()
 currency_gateway = CurrencyGatewayHttp(http_client)
 product_repository = ProductRepositoryDatabase(connection)
 coupon_repository = CouponRepositoryDatabase(connection)
@@ -182,12 +188,18 @@ async def test_checkout_with_one_product_in_dollar_using_fake() -> None:
     class ProductRepositoryFake:
         async def get_product(self, id_product: int) -> Product:
             return Product(6, 'A', 1000, 100, 30, 10, 3, 'USD')
-
-    checkout = Checkout(CurrencyGatewayFake(), ProductRepositoryFake(), coupon_repository, order_repository)
-    input_ = {'cpf': '353.775.320-90', 'items': [{'id_product': 6, 'quantity': 1}]}
-    output = await checkout.execute(input_)
-    total = 5000
-    assert output['total'] == total
+        
+    with patch.object(
+        CatalogGatewayHttp,
+        'get_product',
+        new_callable=AsyncMock,
+        return_value=Product(6, 'A', 1000, 100, 30, 10, 3, 'USD'),
+    ):
+        checkout = Checkout(CurrencyGatewayFake(), ProductRepositoryFake(), coupon_repository, order_repository)
+        input_ = {'cpf': '353.775.320-90', 'items': [{'id_product': 6, 'quantity': 1}]}
+        output = await checkout.execute(input_)
+        total = 5000
+        assert output['total'] == total
 
 
 @patch.object(OrderRepositoryDatabase(connection), 'count', new_callable=AsyncMock, return_value=1)

@@ -2,11 +2,6 @@ version: '3.9'
 
 services:
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-
   postgres:
     image: "postgres"
     environment:
@@ -17,13 +12,3 @@ services:
         - "5432:5432"
     volumes:
         - ./create.sql:/docker-entrypoint-initdb.d/create.sql
-
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "ivar.carrera@gmail.com"
-      PGADMIN_DEFAULT_PASSWORD: "abc123"
-    ports:
-      - "15632:80"
-    depends_on:
-      - postgres

@@ -9,14 +9,15 @@ class ProductRepositoryDatabase(ProductRepository):
 
     async def get_product(self, id_product: int) -> Product:
         product_query = 'SELECT * FROM ecommerce.product WHERE id_product = $1;'
-        product_data = await self.connection.select_one(product_query, id_product)
+        product_data = await self.connection.select(product_query, id_product)
+        product_row = product_data[0]
         return Product(
-            product_data.id_product,
-            product_data.description,
-            float(product_data.price),
-            product_data.width,
-            product_data.height,
-            product_data.length,
-            float(product_data.weight),
-            product_data.currency,
+            product_row.id_product,
+            product_row.description,
+            float(product_row.price),
+            product_row.width,
+            product_row.height,
+            product_row.length,
+            float(product_row.weight),
+            product_row.currency,
         )

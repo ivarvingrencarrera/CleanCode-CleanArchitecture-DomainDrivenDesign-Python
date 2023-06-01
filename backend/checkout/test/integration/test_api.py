@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+from checkout.src.infra.http.requests_adapter import RequestsAdapter
 
 import pytest
 from httpx import AsyncClient
@@ -9,7 +10,7 @@ STATUS_CODE_UNPROCESSABLE_ENTITY = 422
 
 @pytest.fixture
 async def client() -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(base_url='http://localhost:3005') as client:
+    async with AsyncClient(base_url='http://localhost:3001') as client:
         yield client
 
 

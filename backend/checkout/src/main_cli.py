@@ -10,15 +10,21 @@ from checkout.src.infra.cli.cli_controller import CLIController
 from checkout.src.infra.cli.cli_handler_python import CLIHandlerPython
 from checkout.src.infra.database.asyncpg_adapter import AsyncPGAdapter
 from checkout.src.infra.gateway.currency_gateway_http import CurrencyGatewayHttp
-from checkout.src.infra.http.request_adapter import RequestAdapter
-from checkout.src.infra.repository.coupon_repository_database import CouponRepositoryDatabase
-from checkout.src.infra.repository.order_repository_database import OrderRepositoryDatabase
-from checkout.src.infra.repository.product_repository_database import ProductRepositoryDatabase
+from checkout.src.infra.http.requests_adapter import RequestsAdapter
+from checkout.src.infra.repository.coupon_repository_database import (
+    CouponRepositoryDatabase,
+)
+from checkout.src.infra.repository.order_repository_database import (
+    OrderRepositoryDatabase,
+)
+from checkout.src.infra.repository.product_repository_database import (
+    ProductRepositoryDatabase,
+)
 
 
 async def run_cli():
     connection = AsyncPGAdapter()
-    http_client = RequestAdapter()
+    http_client = RequestsAdapter()
     currency_gateway = CurrencyGatewayHttp(http_client)
     product_repository = ProductRepositoryDatabase(connection)
     coupon_repository = CouponRepositoryDatabase(connection)

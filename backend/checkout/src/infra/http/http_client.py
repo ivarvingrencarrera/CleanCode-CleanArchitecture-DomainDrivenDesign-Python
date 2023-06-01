@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
 
+from requests import Response
+
 
 class HttpClient(ABC):
     @abstractmethod
-    def get(self, url: str):
+    async def get(self, url: str, body: dict) -> Response:
         pass
 
     @abstractmethod
-    def post(self, url: str, body):
+    async def post(self, url: str, body: dict) -> Response:
         pass

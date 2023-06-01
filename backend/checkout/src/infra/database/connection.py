@@ -11,9 +11,5 @@ class Connection(ABC):
         pass
 
     @abstractmethod
-    async def select_all(self, query: str, *params) -> list[list]:
-        pass
-
-    @abstractmethod
-    async def select_one(self, query: str, *params) -> list:
+    async def select(self, query: str, *params) -> list[list]:
         pass

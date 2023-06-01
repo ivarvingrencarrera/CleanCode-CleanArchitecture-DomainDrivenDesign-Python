@@ -9,6 +9,8 @@ class Product:
         length: int,
         weight: float,
         currency: str,
+        volume: float = None,
+        density: float = None,
     ) -> None:
         self._validate_dimensions(height, length, weight, width)
         self.id_product = id_product
@@ -19,6 +21,8 @@ class Product:
         self.length = length
         self.weight = weight
         self.currency = currency
+        self.volume = volume
+        self.density = density
 
     @staticmethod
     def _validate_dimensions(*dimensions: float) -> None:

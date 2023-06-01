@@ -19,14 +19,15 @@ class OrderRepositoryDatabase(OrderRepository):
 
     async def get_by_id(self, id_order: str) -> Order:
         order_query = 'SELECT * FROM ecommerce.order WHERE id_order = $1;'
-        order_row = await self.connection.select_one(order_query, id_order)
+        order_data = await self.connection.select(order_query, id_order)
+        order_row = order_data[0]
         order = Order(order_row.id_order, order_row.cpf)
         items_query = 'SELECT * FROM ecommerce.item WHERE id_order = $1;'
-        items_data = await self.connection.select_all(items_query, id_order)
+        items_data = await self.connection.select(items_query, id_order)
         for item_data in items_data:
             order.items.append(Item(item_data.id_product, float(item_data.price), item_data.quantity, 'BRL'))
         return order
 
     async def count(self) -> int:
-        order_row = await self.connection.select_one('SELECT COUNT(*) FROM ecommerce.order;')
+        order_row = await self.connection.select('SELECT COUNT(*) FROM ecommerce.order;')
         return order_row.count
