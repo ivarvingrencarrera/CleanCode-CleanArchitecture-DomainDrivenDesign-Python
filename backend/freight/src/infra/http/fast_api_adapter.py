@@ -4,6 +4,7 @@ from typing import Any
 import uvicorn
 import uvloop
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.encoders import jsonable_encoder  # noqa: F401
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 

@@ -1,6 +1,5 @@
-from fastapi.encoders import jsonable_encoder
-
 from freight.src.application.usecase.calculate_freight import Input, Item
+from freight.src.infra.http.fast_api_adapter import jsonable_encoder
 from freight.src.infra.http.httpx_adapter import HttpxAdapter
 
 
