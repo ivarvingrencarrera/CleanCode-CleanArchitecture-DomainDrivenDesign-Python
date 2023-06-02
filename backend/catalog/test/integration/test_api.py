@@ -1,6 +1,7 @@
+import pytest
+
 from catalog.src.infra.http.fast_api_adapter import jsonable_encoder
 from catalog.src.infra.http.request_adapter import RequestsAdapter
-import pytest
 
 http_client = RequestsAdapter()
 
