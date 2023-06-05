@@ -101,9 +101,9 @@ async def test_checkout_with_1_product_calculating_freight(client: AsyncClient) 
     response = await client.post('/checkout', json=input_)
     output = response.json()
     assert response.status_code == STATUS_CODE_OK
-    total = 3090
+    total = 3067.339960020735
     assert output['total'] == total
-    freight = 90
+    freight = 67.33996002073468
     assert output['freight'] == freight
 
 
@@ -136,3 +136,17 @@ async def test_checkout_with_1_product_calculating_minimum_freight(client: Async
     assert output['total'] == total
     freight = 10
     assert output['freight'] == freight
+
+
+async def test_checkout_with_3_products_with_zipcode(client: AsyncClient) -> None:
+    input_ = {
+        'cpf': '353.775.320-90',
+        'items': [{'id_product': 1, 'quantity': 1}],
+        'origin': 22060030,
+        'destination': 88015600,
+    }
+    response = await client.post('/checkout', json=input_)
+    output = response.json()
+    assert response.status_code == STATUS_CODE_OK
+    total = 1022.4466533402449
+    assert output['total'] == total

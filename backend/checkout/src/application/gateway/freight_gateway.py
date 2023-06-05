@@ -13,6 +13,8 @@ class Item(BaseModel):
 
 class Input(BaseModel):
     items: list[Item]
+    origin: str = None
+    destination: str = None
 
 
 class Output(BaseModel):

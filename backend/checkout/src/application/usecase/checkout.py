@@ -1,5 +1,7 @@
 from datetime import datetime
-
+from checkout.src.application.usecase.usecase import UseCase
+from checkout.src.infra.gateway.auth_gateway_http import AuthGatewayHttp
+from checkout.src.application.gateway.auth_gateway import AuthGateway
 from checkout.src.application.gateway.catalog_gateway import CatalogGateway
 from checkout.src.application.gateway.currency_gateway import CurrencyGateway
 from checkout.src.application.gateway.freight_gateway import FreightGateway
@@ -33,7 +35,7 @@ class Input(BaseModel):
     destination: str | None = None
 
 
-class Checkout:
+class Checkout(UseCase):
     def __init__(
         self,
         currency_gateway: CurrencyGateway,
@@ -52,15 +54,21 @@ class Checkout:
 
     async def execute(self, input_data: dict) -> dict:
         input_ = Input(**input_data)
+        # if input_.token:
+        #     payload = await self.auth_gateway.verify(input_.token)
+        #     print(payload)
+        #     if not payload:
+
+        #         raise Exception('Access denied')
+
         currencies = await self.currency_gateway.get_currencies()
         currency_table = CurrencyTable()
         currency_table.add_currency(currencies['currency'], currencies['rates'])   # add USD currency
         sequence = await self.order_repository.count()
         order = Order(input_.uuid, input_.cpf, currency_table, sequence, datetime.now())
-        freight_input = FreightInput(items=[])
+        freight_input = FreightInput(items=[], origin=input_.origin, destination=input_.destination)
         if input_.items:
             for item in input_.items:
-                #product: Product = await self.product_repository.get_product(item.id_product)
                 product: Product = await self.catalog_gateway.get_product(item.id_product)
                 order.add_item(product, item.quantity)
                 freight_input.items.append(

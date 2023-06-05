@@ -95,14 +95,14 @@ async def test_checkout_with_duplicated_item() -> None:
 async def test_checkout_with_1_product_calculating_freight() -> None:
     input_ = {
         'cpf': '353.775.320-90',
-        'items': [{'id_product': 1, 'quantity': 3}],
+        'items': [{'id_product': 1, 'quantity': 1}],
         'origin': 22060030,
         'destination': 88015600,
     }
     output = await checkout.execute(input_)
-    total = 3090
+    total = 1022.4466533402449
     assert output['total'] == total
-    freight = 90
+    freight = 22.446653340244893
     assert output['freight'] == freight
 
 
@@ -214,3 +214,14 @@ async def test_checkout_and_verify_serial_code(count) -> None:
     output = await get_order.execute(uuid_)
     code = '202300000001'
     assert output.code == code
+
+async def test_checkout_with_3_products_with_coupon_only_authenticate() -> None:
+    input_ = {
+        'cpf': '353.775.320-90',
+        'items': [{'id_product': 1, 'quantity': 1}, {'id_product': 2, 'quantity': 1}, {'id_product': 3, 'quantity': 3}],
+        'coupon': 'VALE20',
+        'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvYW9AZ21haWwuY29tIiwiaWF0IjoxNjg2MDAwOTY4LCJleHAiOjE2ODcwMDA5Njh9.BqOVYPYLZpRPSHK4LjvXGzrl0Q8oWesJDv7jrzNT7iw'
+    }
+    output = await checkout.execute(input_)
+    total = 4872
+    assert output['total'] == total
