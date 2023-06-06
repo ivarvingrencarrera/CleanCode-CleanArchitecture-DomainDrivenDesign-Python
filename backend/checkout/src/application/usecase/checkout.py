@@ -1,4 +1,6 @@
 from datetime import datetime
+from checkout.src.application.gateway.stock_gateway import StockGateway
+from checkout.src.infra.gateway.stock_gateway_http import StockGatewayHttp
 from checkout.src.application.usecase.usecase import UseCase
 from checkout.src.infra.gateway.auth_gateway_http import AuthGatewayHttp
 from checkout.src.application.gateway.auth_gateway import AuthGateway
@@ -44,6 +46,7 @@ class Checkout(UseCase):
         order_repository: OrderRepository,
         freight_gateway: FreightGateway = FreightGatewayHttp(RequestsAdapter()),
         catalog_gateway: CatalogGateway = CatalogGatewayHttp(RequestsAdapter()),
+        stock_gateway: StockGateway = StockGatewayHttp(RequestsAdapter()),
     ):
         self.currency_gateway = currency_gateway
         self.product_repository = product_repository
@@ -51,16 +54,10 @@ class Checkout(UseCase):
         self.order_repository = order_repository
         self.freight_gateway = freight_gateway
         self.catalog_gateway = catalog_gateway
+        self.stock_gateway = stock_gateway
 
     async def execute(self, input_data: dict) -> dict:
         input_ = Input(**input_data)
-        # if input_.token:
-        #     payload = await self.auth_gateway.verify(input_.token)
-        #     print(payload)
-        #     if not payload:
-
-        #         raise Exception('Access denied')
-
         currencies = await self.currency_gateway.get_currencies()
         currency_table = CurrencyTable()
         currency_table.add_currency(currencies['currency'], currencies['rates'])   # add USD currency
@@ -90,4 +87,5 @@ class Checkout(UseCase):
         total = order.get_total()
 
         await self.order_repository.save(order)
+        await self.stock_gateway.decrement_stock(input_)
         return {'total': total, 'freight': freight}
